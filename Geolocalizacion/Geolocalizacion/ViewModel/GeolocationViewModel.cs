@@ -1,9 +1,12 @@
-﻿using Plugin.Geolocator;
+﻿using Geolocalizacion.Services;
+using Plugin.Geolocator;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace Geolocalizacion.ViewModel
@@ -43,16 +46,43 @@ namespace Geolocalizacion.ViewModel
         }
         public string DisplayCor => $"Coordenadas :{Latitud} , {Longitud}";
 
+
+        #region Command
+        public ICommand CommandStartGeolocalizacion { get => new Command(StartGeolocalizacion); }
+
+        public ICommand CommandStopGeolocalizacion { get => new Command(stopGeolocalizacion); }
+        #endregion
+ 
         public GeolocationViewModel()
         {
             
         }
         public GeolocationViewModel(Page page)
         {
-            this.page = page; 
-            InitializePlugin();
+            this.page = page;
+            MessagingCenter.Unsubscribe<string>(this, "value");
+            MessagingCenter.Subscribe<string>(this, "serviceGeolocaizacion", (value) =>
+            {
+                if (value == "start")
+                {
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        InitializePlugin();
+                    });
+                }
+            });
         }
-
+        private void StartGeolocalizacion()
+        {
+            MessagingCenter.Send<string>("start", "serviceGeolocaizacion");
+            DependencyService.Get<IMessage>().ShortAlert("Inciando geolocalizacion");
+        }
+        private void stopGeolocalizacion()
+        {
+            MessagingCenter.Send<string>("stop", "serviceGeolocaizacion");
+            StopGps();
+            DependencyService.Get<IMessage>().ShortAlert("Deteniendo geolocalizacion");
+        }
         private async void InitializePlugin()
         {
            if (!CrossGeolocator.IsSupported)
@@ -89,12 +119,18 @@ namespace Geolocalizacion.ViewModel
             Longitud = position.Result.Longitude.ToString();
 
             var output = "coordenadas: " + Latitud + ", " + Longitud;
+
+            DependencyService.Get<IMessage>().ShortAlert("coordenadas: " + Latitud + ", " + Longitud);
             Debug.WriteLine(output);
 
 
 
         }
         
+        private void StopGps()
+        {
+            CrossGeolocator.Current.StopListeningAsync();
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         void OnPropertyChanged(string name)
         {

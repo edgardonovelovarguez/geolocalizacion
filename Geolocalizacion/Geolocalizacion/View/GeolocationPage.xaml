@@ -10,9 +10,18 @@
         <StackLayout Margin="20">
             <!--Entry Text="{Binding Latitud}"/>
             <Entry Text="{Binding Longitud}"/-->
-            <Label Text="{Binding DisplayCor}"
+            <!--Label Text="{Binding DisplayCor}"
                    VerticalOptions="Center"
-                   HorizontalOptions="Center" />
+                   HorizontalOptions="Center" /-->
+
+            <Button 
+                Text="Iniciar Geolocalización"
+                Command="{Binding CommandStartGeolocalizacion}"
+                />
+            <Button 
+                Text="Detener Geolocalización"
+                Command="{Binding CommandStopGeolocalizacion}"
+                />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

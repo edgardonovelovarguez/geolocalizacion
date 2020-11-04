@@ -7,6 +7,8 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Plugin.CurrentActivity;
+using Xamarin.Forms;
+using Android.Content;
 
 namespace Geolocalizacion.Droid
 {
@@ -24,6 +26,19 @@ namespace Geolocalizacion.Droid
             CrossCurrentActivity.Current.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+
+            MessagingCenter.Unsubscribe<string>(this, "serviceGeolocaizacion");
+            MessagingCenter.Subscribe<string>(this, "serviceGeolocaizacion", (value) =>
+            { 
+                if(value == "start")
+                {
+                    StartService(new Intent(this, typeof(BackgroundServices)));
+                }
+                else
+                {
+                    StopService(new Intent(this, typeof(BackgroundServices)));
+                }
+            });
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
